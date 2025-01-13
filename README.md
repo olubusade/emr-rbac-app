@@ -1,27 +1,139 @@
-# EmrRbacApp
+# emr-rbac-app
+EMR System with Role-Based Access Control (RBAC)
+Overview
+This project implements a Role-Based Access Control (RBAC) system for an Electronic Medical Record (EMR) system using Node.js, Angular, MySQL, and Bootstrap. The system supports different user roles, including admin, doctor, nurse, front desk, biller, and pharmacist, with distinct access permissions for each role.
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 17.3.5.
+**Features**
+**Role-based access control:** Users are assigned specific roles (admin, doctor, nurse, etc.), and each role has predefined permissions.
+**Granular Permissions:** Permissions are split into viewme, readme, writeme, and updateme to control what actions users can perform on each resource.
+**Dynamic role management:** Admins can assign and remove permissions dynamically.
+**Database-backed permissions:** Permissions are stored in a database, allowing flexibility in role management without code changes.
 
-## Development server
+**Tech Stack**
+Frontend: Angular, Bootstrap
+Backend: Node.js, Express.js
+Database: MySQL
+Authentication: JWT (JSON Web Token)
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+**Project Structure
+Backend**
+- /server
+  - /models
+    - user.js          # User model schema
+    - role.js          # Role model schema
+    - permission.js    # Permission model schema
+    - role_permission.js # Role-Permission mapping
+  - /controllers
+    - userController.js # Controller for user operations
+    - authController.js # Controller for authentication
+  - /middleware
+    - authMiddleware.js # Middleware for JWT authentication
+    - permissionMiddleware.js # Middleware for permission authorization
+  - /routes
+    - userRoutes.js      # Routes for user operations
+    - authRoutes.js      # Routes for authentication
+  - /config
+    - db.js              # Database connection configuration
+  - server.js            # Express server setup
 
-## Code scaffolding
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+- /src
+  - /app
+    - /services
+      - auth.service.ts   # Service to handle authentication and permission checks
+    - /components
+      - navbar.component.ts # Navigation bar component
+    - /pages
+      - dashboard.component.ts # User dashboard page
+      - login.component.ts # Login page
+    - /models
+      - user.model.ts      # User model
+  - app.module.ts          # Angular module
+  - main.ts                # Entry point for Angular application
 
-## Build
+**Database Schema**
+**users Table**
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(100) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    role_id INT NOT NULL,
+    FOREIGN KEY (role_id) REFERENCES roles(id)
+);
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+**roles Table**
+sql
+Copy code
+CREATE TABLE roles (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL UNIQUE
+);
 
-## Running unit tests
+**permissions Table**
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+CREATE TABLE permissions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    resource VARCHAR(100) NOT NULL UNIQUE,
+    viewme BOOLEAN DEFAULT FALSE,
+    readme BOOLEAN DEFAULT FALSE,
+    writeme BOOLEAN DEFAULT FALSE,
+    updateme BOOLEAN DEFAULT FALSE
+);
 
-## Running end-to-end tests
+**role_permissions Table**
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+CREATE TABLE role_permissions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    role_id INT NOT NULL,
+    permission_id INT NOT NULL,
+    FOREIGN KEY (role_id) REFERENCES roles(id),
+    FOREIGN KEY (permission_id) REFERENCES permissions(id)
+);
 
-## Further help
+**Setup Instructions**
+git clone https://github.com/olubusade/emr-rbac-app.git
+cd emr-rbac-app
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+
+**Backend (Node.js)**
+1. cd server
+2. npm install
+
+3. **Configure the database connection in /server/config/db.js:**
+const mysql = require('mysql');
+
+const db = mysql.createConnection({
+  host: 'localhost',
+  user: 'root',
+  password: '',
+  database: 'emr_rbac'
+});
+
+db.connect(err => {
+  if (err) throw err;
+  console.log('Database connected...');
+});
+
+module.exports = db;
+
+4.Start the server
+npm start
+
+5. The backend should be running on http://localhost:3000.
+
+
+
+**Frontend (Angular)**
+1. Install Angular CLI globally if not already installed:
+npm install -g @angular/cli
+
+2. Change directory and install dependencies:
+cd frontend
+npm install
+
+3. Update the auth.service.ts to interact with your backend API (make sure the backend is running before testing):
+private apiUrl = 'http://localhost:3000'; // backend URL
+
+4. Start the frontend:
+   ng serve
+5. The frontend should be running on http://localhost:4200
