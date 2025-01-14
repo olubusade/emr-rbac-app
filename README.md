@@ -34,7 +34,7 @@ cd emr-rbac-app
 
 #### a. Install Backend Dependencies
 
-Go to the `backend` directory and install the necessary dependencies:
+Go to the `server` directory and install the necessary dependencies:
 
 ```bash
 cd server
