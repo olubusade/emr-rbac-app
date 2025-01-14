@@ -1,139 +1,170 @@
-# emr-rbac-app
-EMR System with Role-Based Access Control (RBAC)
-Overview
-This project implements a Role-Based Access Control (RBAC) system for an Electronic Medical Record (EMR) system using Node.js, Angular, MySQL, and Bootstrap. The system supports different user roles, including admin, doctor, nurse, front desk, biller, and pharmacist, with distinct access permissions for each role.
 
-**Features**
-**Role-based access control:** Users are assigned specific roles (admin, doctor, nurse, etc.), and each role has predefined permissions.
-**Granular Permissions:** Permissions are split into viewme, readme, writeme, and updateme to control what actions users can perform on each resource.
-**Dynamic role management:** Admins can assign and remove permissions dynamically.
-**Database-backed permissions:** Permissions are stored in a database, allowing flexibility in role management without code changes.
+---
 
-**Tech Stack**
-Frontend: Angular, Bootstrap
-Backend: Node.js, Express.js
-Database: MySQL
-Authentication: JWT (JSON Web Token)
+# Role-Based Access Control (RBAC) EMR System
 
-**Project Structure
-Backend**
-- /server
-  - /models
-    - user.js          # User model schema
-    - role.js          # Role model schema
-    - permission.js    # Permission model schema
-    - role_permission.js # Role-Permission mapping
-  - /controllers
-    - userController.js # Controller for user operations
-    - authController.js # Controller for authentication
-  - /middleware
-    - authMiddleware.js # Middleware for JWT authentication
-    - permissionMiddleware.js # Middleware for permission authorization
-  - /routes
-    - userRoutes.js      # Routes for user operations
-    - authRoutes.js      # Routes for authentication
-  - /config
-    - db.js              # Database connection configuration
-  - server.js            # Express server setup
+This project implements a Role-Based Access Control (RBAC) system for an Electronic Medical Records (EMR) system. The application uses Angular for the frontend, Node.js for the backend, and MySQL for the database. It is designed to manage multiple user roles such as Admin, Doctor, Nurse, and Front Desk with different permissions (read, write, update) on various resources within the system.
 
+## Features
 
-- /src
-  - /app
-    - /services
-      - auth.service.ts   # Service to handle authentication and permission checks
-    - /components
-      - navbar.component.ts # Navigation bar component
-    - /pages
-      - dashboard.component.ts # User dashboard page
-      - login.component.ts # Login page
-    - /models
-      - user.model.ts      # User model
-  - app.module.ts          # Angular module
-  - main.ts                # Entry point for Angular application
+- **Login System**: Users log in with their credentials and are authenticated via a backend API.
+- **Role-Based Dashboard**: Once authenticated, users are redirected to their role-specific dashboards (Admin, Doctor, Nurse, Front Desk).
+- **Role Permissions**: Users can perform different actions (read, write, update) depending on their assigned role.
+- **Backend Integration**: User roles and permissions are fetched dynamically from the backend.
+- **Responsive UI**: The system is built with Bootstrap for a responsive and user-friendly interface.
 
-**Database Schema**
-**users Table**
-CREATE TABLE users (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(100) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL,
-    role_id INT NOT NULL,
-    FOREIGN KEY (role_id) REFERENCES roles(id)
-);
+## Prerequisites
 
-**roles Table**
-sql
-Copy code
-CREATE TABLE roles (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL UNIQUE
-);
+Before running the application, make sure you have the following installed:
 
-**permissions Table**
+- **Node.js** and **npm** (for backend and frontend)
+- **MySQL** (for the database)
+- **Angular CLI** (for frontend development)
 
-CREATE TABLE permissions (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    resource VARCHAR(100) NOT NULL UNIQUE,
-    viewme BOOLEAN DEFAULT FALSE,
-    readme BOOLEAN DEFAULT FALSE,
-    writeme BOOLEAN DEFAULT FALSE,
-    updateme BOOLEAN DEFAULT FALSE
-);
+## Installation
 
-**role_permissions Table**
+### 1. Clone the repository
 
-CREATE TABLE role_permissions (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    role_id INT NOT NULL,
-    permission_id INT NOT NULL,
-    FOREIGN KEY (role_id) REFERENCES roles(id),
-    FOREIGN KEY (permission_id) REFERENCES permissions(id)
-);
-
-**Setup Instructions**
+```bash
 git clone https://github.com/olubusade/emr-rbac-app.git
 cd emr-rbac-app
+```
 
+### 2. Set up the backend (Node.js)
 
-**Backend (Node.js)**
-1. cd server
-2. npm install
+#### a. Install Backend Dependencies
 
-3. **Configure the database connection in /server/config/db.js:**
-const mysql = require('mysql');
+Go to the `backend` directory and install the necessary dependencies:
 
-const db = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: '',
-  database: 'emr_rbac'
-});
+```bash
+cd backend
+npm install
+```
 
-db.connect(err => {
-  if (err) throw err;
-  console.log('Database connected...');
-});
+#### b. Configure MySQL Database
 
-module.exports = db;
+Create a MySQL database and set up tables for users and roles.
 
-4.Start the server
-npm start
+```sql
+CREATE DATABASE emr_rbac;
 
-5. The backend should be running on http://localhost:3000.
+USE emr_rbac;
 
+CREATE TABLE roles (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(50) NOT NULL
+);
 
+CREATE TABLE permissions (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  resource VARCHAR(50) 
+  readme BOOLEAN,
+  writeme BOOLEAN,
+  updateme BOOLEAN
+);
 
-**Frontend (Angular)**
-1. Install Angular CLI globally if not already installed:
-npm install -g @angular/cli
+CREATE TABLE role_permissions (
+  role_id INT,
+  permission_id INT,
+  FOREIGN KEY (role_id) REFERENCES roles(id),
+  FOREIGN KEY (permission_id) REFERENCES permissions(id)
+);
 
-2. Change directory and install dependencies:
+CREATE TABLE users (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  username VARCHAR(50) NOT NULL UNIQUE,
+  password VARCHAR(255) NOT NULL,
+  role_id INT,
+  FOREIGN KEY (role_id) REFERENCES roles(id)
+);
+
+```
+
+Update the `backend/config.js` file with your database credentials.
+
+#### c. Run the Backend Server
+
+```bash
+node server.js
+```
+
+The backend API will now be running on `http://localhost:3000`.
+
+### 3. Set up the frontend (Angular)
+
+#### a. Install Frontend Dependencies
+
+Go to the `frontend` directory and install the necessary dependencies:
+
+```bash
 cd frontend
 npm install
+```
 
-3. Update the auth.service.ts to interact with your backend API (make sure the backend is running before testing):
-private apiUrl = 'http://localhost:3000'; // backend URL
+#### b. Configure the API URL
 
-4. Start the frontend:
-   ng serve
-5. The frontend should be running on http://localhost:4200
+In the `frontend/src/app/services/auth.service.ts` file, update the API URL to point to your backend:
+
+```typescript
+private apiUrl = 'http://localhost:3000/login'; // Adjust the URL if needed
+```
+
+#### c. Run the Frontend Application
+
+```bash
+ng serve
+```
+
+The frontend will now be running on `http://localhost:4200`.
+
+## Project Structure
+
+- **`frontend/`**: Angular-based frontend that handles the UI, routing, and form handling.
+  - **`src/app/`**: Contains all components, services, models, and routing.
+  - **`login.component.ts`**: Handles user login functionality.
+  - **`dashboard.component.ts`**: Displays the dashboard based on user role.
+  - **`auth.service.ts`**: Manages authentication and user session.
+  
+- **`backend/`**: Node.js-based backend that serves the API for authentication and role management.
+  - **`server.js`**: Main entry point of the backend server.
+  - **`config.js`**: Contains database configuration.
+  - **`authController.js`**: Handles login and authentication logic.
+  - **`roleController.js`**: Manages role and permission assignments.
+
+## How to Use
+
+1. **Login**: Navigate to `http://localhost:4200` and enter the credentials (use the default username and password if necessary).
+2. **Role-Based Dashboards**: Depending on the user role (admin, doctor, nurse, or front desk), users are redirected to their respective dashboards.
+3. **Permissions**: Each user has specific permissions (read, write, update) based on their role, which dictates what actions they can perform within the app.
+
+## Role-Based Dashboard Details
+
+### Admin Dashboard:
+- Full access to all features: read, write, and update for all resources.
+
+### Doctor Dashboard:
+- Can read patient records, but can only update their own patient data.
+
+### Nurse Dashboard:
+- Can read patient records, and update basic details (e.g., nursing notes).
+
+### Front Desk Dashboard:
+- Can read patient records and add new patient data but has limited access to sensitive information.
+
+## Notes
+
+- The login system uses a basic JWT authentication model. Once a user logs in, a JWT token is returned, which should be stored in localStorage for further authenticated API requests.
+- Roles and permissions are retrieved from the backend dynamically. Make sure the permissions are set up properly for each role.
+
+## Future Enhancements
+
+- Implement JWT token expiration and refresh logic.
+- Add more granular permissions (e.g., view only specific records).
+- Integrate more advanced role management (e.g., custom roles).
+- Improve security (e.g., password hashing, secure token storage).
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---

@@ -1,0 +1,13 @@
+<div class="menu">
+  <ul>
+    <li *ngIf="hasPermission('view_dashboard')">
+      <a routerLink="/dashboard">Dashboard</a>
+    </li>
+    <li *ngIf="hasPermission('view_reports')">
+      <a routerLink="/reports">Reports</a>
+    </li>
+    <li *ngIf="hasPermission('manage_users')">
+      <a routerLink="/manage-users">Manage Users</a>
+    </li>
+  </ul>
+</div>
