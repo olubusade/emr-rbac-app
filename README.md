@@ -37,7 +37,7 @@ cd emr-rbac-app
 Go to the `backend` directory and install the necessary dependencies:
 
 ```bash
-cd backend
+cd server
 npm install
 ```
 
@@ -80,7 +80,7 @@ CREATE TABLE users (
 
 ```
 
-Update the `backend/config.js` file with your database credentials.
+Update the `server/config.js` file with your database credentials.
 
 #### c. Run the Backend Server
 
@@ -125,7 +125,7 @@ The frontend will now be running on `http://localhost:4200`.
   - **`dashboard.component.ts`**: Displays the dashboard based on user role.
   - **`auth.service.ts`**: Manages authentication and user session.
   
-- **`backend/`**: Node.js-based backend that serves the API for authentication and role management.
+- **`server/`**: Node.js-based backend that serves the API for authentication and role management.
   - **`server.js`**: Main entry point of the backend server.
   - **`config.js`**: Contains database configuration.
   - **`authController.js`**: Handles login and authentication logic.
